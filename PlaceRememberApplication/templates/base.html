@@ -1,0 +1,122 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <title>{% block title %}{% endblock %}</title>
+    {% block head %}{% endblock %}
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+    <!-- Custom styles for this template -->
+  {% load staticfiles %}
+
+
+  <link rel="stylesheet" href="{% static 'css/jumbotron.css' %}">
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+      <a class="navbar-brand" href="{% url 'home' %}">PlacesRemember</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse float-right" id="navbarsExampleDefault">
+        <ul class="navbar-nav mr-auto">
+
+          <li class="nav-item dropdown float-right">
+            <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {% if user.is_authenticated %}
+
+                    {% if not backends.associated %}
+                        Logged as {{ user.username }}
+                    {% endif %}
+
+                    {% for ass in backends.associated %}
+                        {% if ass.provider == 'facebook' %}
+
+                            <img src="{{ ass.extra_data.picture.data.url }}" alt="" width="20" height="20" style="border-radius: 50%">
+                            {{ ass.extra_data.name }}
+
+                        {% elif ass.provider == 'google-oauth2' %}
+
+                            <img src="{{ ass.extra_data.picture }}" alt="" width="20" height="20" style="border-radius: 50%">
+                            {{ ass.extra_data.name }}
+
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    Войти
+                {% endif %}
+            </a>
+            <div class="dropdown-menu" aria-labelledby="dropdown01">
+                {% if user.is_authenticated %}
+
+                    <a class="dropdown-item" href="{% url 'logout' %}">Выйти</a>
+                {% else %}
+                    <a class="dropdown-item" href="{% url 'social:begin' 'google-oauth2' %}">
+                        Войти через Google
+                    </a>
+                    <hr>
+                    <a class="dropdown-item" href="{% url 'social:begin' 'facebook' %}">
+                        Войти через Facebook
+                    </a>
+
+                {% endif %}
+
+            </div>
+          </li>
+        </ul>
+       </div>
+    </nav>
+
+
+    <main role="main">
+
+      <!-- Main jumbotron for a primary marketing message or call to action -->
+      <div class="jumbotron">
+        <div class="container">
+          {% block content %}{% endblock %}
+          {% block pagination %}
+              {% if is_paginated %}
+                  <div class="pagination">
+                      <span class="page-links">
+                          {% if page_obj.has_previous %}
+                              <a href="{{ request.path }}?page={{ page_obj.previous_page_number }}">Предыдущая</a>
+                          {% endif %}
+                          <span class="page-current">
+                              Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}.
+                          </span>
+                          {% if page_obj.has_next %}
+                              <a href="{{ request.path }}?page={{ page_obj.next_page_number }}">Следующая</a>
+                          {% endif %}
+                      </span>
+                  </div>
+              {% endif %}
+            {% endblock %}
+        </div>
+      </div>
+
+      <hr>
+
+      </div> <!-- /container -->
+
+    </main>
+
+    <footer class="container">
+      <p>&copy; SKozlovsky - 2019</p>
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+  </body>
+</html>
+

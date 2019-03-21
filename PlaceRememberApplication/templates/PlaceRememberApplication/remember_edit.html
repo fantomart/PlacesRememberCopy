@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <style>
+        #map {
+            height: 400px;
+            width: 600px;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    {% if remember_form.initial.operation == "edit" %}
+        <h4>Редактирование воспоминания</h4>
+    {% else %}
+        <h4>Добавление воспоминания</h4>
+    {% endif %}
+
+
+    <script>
+        // Initialize and add the map
+        function initMap() {
+            // The location of Uluru
+            var uluru = {lat: {{ remember_form.initial.lat }}, lng: {{ remember_form.initial.lng }}};
+            // The map, centered at Uluru
+            var map = new google.maps.Map(
+                document.getElementById('map'), {zoom: 4, center: uluru});
+            // The marker, positioned at Uluru
+            var marker = new google.maps.Marker({position: uluru, map: map});
+
+            google.maps.event.addListener(map, 'click', function (event) {
+
+                placeMarker(event.latLng, marker);
+                document.getElementById('lat').value = event.latLng.lat();
+                document.getElementById('lng').value = event.latLng.lng();
+
+
+            });
+        }
+
+        function placeMarker(location, marker) {
+
+            if (marker == null) {
+                marker = new google.maps.Marker({
+                    position: location,
+                    map: map
+                });
+            } else {
+                marker.setPosition(location);
+            }
+        }
+    </script>
+
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key={{ remember_form.initial.GOOGLE_MAPS_API_KEY }}&callback=initMap">
+    </script>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ remember_form.as_p }}
+        <div id="map"></div>
+        <p>
+            <label for="lat">Широта:</label>
+            <input type="text" id="lat" name="lat" readonly value={{ remember_form.initial.lat }}>
+        </p>
+        <p>
+            <label for="lng">Долгота:</label>
+            <input type="text" id="lng" name="lng" readonly value={{ remember_form.initial.lng }}>
+        </p>
+
+        {% if remember_form.initial.operation == "edit" %}
+            <button class="btn btn-primary" type="submit">Обновить</button>
+        {% else %}
+            <button class="btn btn-primary" type="submit">Добавить</button>
+        {% endif %}
+
+    </form>
+
+{% endblock %}

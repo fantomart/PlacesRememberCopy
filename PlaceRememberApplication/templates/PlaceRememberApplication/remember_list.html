@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Список воспоминаний{% endblock %}
+
+{% block content %}
+
+    <a class="float-right btn btn-primary" href="{% url 'remember-create' %}" role="button">Добавить воспоминание</a>
+    <h1 class="pb-5">Мои воспоминания</h1>
+
+    {% if object_list %}
+        <div class="container">
+            <!-- Example row of columns -->
+            <div class="row">
+                {% for remember in object_list %}
+                    <div class="col-md-4">
+                        <h2>{{ remember.get_short_name }}</h2>
+                        {% if remember.photo %}
+                            <img src="{{ MEDIA_URL }}{{ remember.photo }}" height="100">
+                        {% endif %}
+                        <p>{{ remember.get_short_description }} </p>
+                        <p><a class="btn btn-secondary" href="{% url 'remember-detail' remember.id %}" role="button">Подробнее
+                            &raquo;</a></p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <p>Воспоминания отсутствуют!</p>
+    {% endif %}
+{% endblock %}
